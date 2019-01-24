@@ -113,7 +113,12 @@ class AmzCheckoutHelper
         $this->helper->log(__CLASS__, __METHOD__, 'hooray', '');
         try {
             $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
-            $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress, $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"]);
+            $email = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
+            if(empty($email)) {
+                $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getFromSession('amzOrderReference')]);
+                $email = $userData["email"];
+            }
+            $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress, $email);
             /** @var AmzCustomerService $customerService */
             $customerService = pluginApp(AmzCustomerService::class);
             $contactId = $customerService->getContactId();
