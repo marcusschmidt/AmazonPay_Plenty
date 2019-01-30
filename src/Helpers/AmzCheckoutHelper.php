@@ -115,7 +115,7 @@ class AmzCheckoutHelper
             $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
             $email = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];
             if(empty($email)) {
-                $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getFromSession('amzOrderReference')]);
+                $userData = $this->transactionHelper->call('GetUserInfo', ['access_token' => $this->helper->getFromSession('amzUserToken')]);
                 $email = $userData["email"];
             }
             $formattedInvoiceAddress = $this->helper->reformatAmazonAddress($invoiceAddress, $email);

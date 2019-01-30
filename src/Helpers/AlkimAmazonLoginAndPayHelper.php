@@ -225,11 +225,26 @@ class AlkimAmazonLoginAndPayHelper
 
     public function assignPlentyPaymentToPlentyOrder(Payment $payment, int $orderId)
     {
+        try{
+            $this->log(__CLASS__, __METHOD__, 'start assign plenty payment to order', ['orderId' => $orderId, 'payment' => $payment]);
         $order = $this->orderRepository->findOrderById($orderId);
         $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order', ['order' => $order, 'payment' => $payment]);
         if (!is_null($order) && $order instanceof Order) {
-            $this->paymentOrderRelationRepository->createOrderRelation($payment, $order);
+            $paymentOrderRepo = $this->paymentOrderRelationRepository;
+            /** @var AuthHelper $authHelper */
+            $authHelper = pluginApp(AuthHelper::class);
+            $return = $authHelper->processUnguarded(
+                function () use ($paymentOrderRepo, $payment, $order) {
+                    return $paymentOrderRepo->createOrderRelation($payment, $order);
+                }
+            );
+            $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order - result', $return);
         }
+        } catch (\Exception $e) {
+            $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order failed', [$e, $e->getMessage()], true);
+            return false;
+        }
+        return true;
     }
 
     public function getOrderTotalAndCurrency(int $orderId)
