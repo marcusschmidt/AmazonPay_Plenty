@@ -396,10 +396,12 @@ class AlkimAmazonLoginAndPayHelper
             /** @var Request $request */
             $request = pluginApp(Request::class);
             $header = $request->header();
-            $this->log(__CLASS__, __METHOD__, 'no user token in session - tried from cookie', $header, true);
+            $this->log(__CLASS__, __METHOD__, 'no user token in session - tried from cookie', [$header, explode('; ', $header["cookie"])], true);
 
             $cookieStr = $header["cookie"];
+
             foreach(explode('; ', $cookieStr) as $cookiePart){
+                $this->log(__CLASS__, __METHOD__, 'no user token in session - cookie part', [$cookiePart, substr($cookiePart, 0, 25)], true);
                 if(substr($cookiePart, 0, 25) === 'amazon_Login_accessToken='){
                     $token = substr($cookiePart, 25);
                     $this->log(__CLASS__, __METHOD__, 'token from cookie', $token, true);
