@@ -110,7 +110,6 @@ class AmzCheckoutHelper
         }
         $formattedInvoiceAddress = null;
         $invoiceAddressObject = null;
-        $this->helper->log(__CLASS__, __METHOD__, 'hooray', '');
         try {
             $invoiceAddress = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["BillingAddress"]["PhysicalAddress"];
             $email = $orderReferenceDetails["GetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Buyer"]["Email"];

@@ -402,7 +402,6 @@ class AlkimAmazonLoginAndPayHelper
             }
             $this->log(__CLASS__, __METHOD__, 'no user token in session - tried from cookie', [$header, explode('; ', $cookie)], true);
             foreach(explode('; ', $cookie) as $cookiePart){
-                $this->log(__CLASS__, __METHOD__, 'no user token in session - cookie part', [$cookiePart, substr($cookiePart, 0, 25)], true);
                 if(substr($cookiePart, 0, 25) === 'amazon_Login_accessToken='){
                     $token = substr($cookiePart, 25);
                     $this->log(__CLASS__, __METHOD__, 'token from cookie', $token, true);
