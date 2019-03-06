@@ -14,6 +14,7 @@ use Plenty\Modules\Payment\Method\Contracts\PaymentMethodRepositoryContract;
 use Plenty\Modules\Payment\Models\Payment;
 use Plenty\Modules\Payment\Models\PaymentProperty;
 use Plenty\Plugin\ConfigRepository;
+use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Log\Loggable;
 
 class AlkimAmazonLoginAndPayHelper
@@ -387,6 +388,21 @@ class AlkimAmazonLoginAndPayHelper
     {
         return $this->session->getPlugin()->getValue($key);
     }
+
+    public function setToCookie($key, $value)
+    {
+
+    }
+
+    public function getFromCookie($key)
+    {
+        /** @var Request $request */
+        $request = pluginApp(Request::class);
+        $header = $request->header();
+        $this->log(__CLASS__, __METHOD__, 'cookie', $header, true);
+    }
+
+
 
     public function isNet(){
         return (bool)$this->session->getCustomer()->showNetPrice;
