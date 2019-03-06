@@ -388,13 +388,13 @@ class AlkimAmazonLoginAndPayHelper
     {
         return $this->session->getPlugin()->getValue($key);
     }
-
+/*
     public function setToCookie($key, $value)
     {
 
     }
-
-    public function getFromCookie($key)
+*/
+    public function getFromCookie()
     {
         /** @var Request $request */
         $request = pluginApp(Request::class);
