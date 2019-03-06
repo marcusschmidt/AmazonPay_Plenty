@@ -388,6 +388,26 @@ class AlkimAmazonLoginAndPayHelper
     {
         return $this->session->getPlugin()->getValue($key);
     }
+
+    public function getAccessToken(){
+        $token = $this->getFromSession('amzUserToken');
+        $token = '';
+        if(empty($token)){
+            /** @var Request $request */
+            $request = pluginApp(Request::class);
+            $header = $request->header();
+            $this->log(__CLASS__, __METHOD__, 'no user token in session - tried from cookie', $header, true);
+
+            $cookieStr = $header["cookie"];
+            foreach(explode('; ', $cookieStr) as $cookiePart){
+                if(substr($cookiePart, 0, 25) === 'amazon_Login_accessToken='){
+                    $token = substr($cookiePart, 25);
+                    $this->log(__CLASS__, __METHOD__, 'token from cookie', $token, true);
+                }
+            }
+        }
+        return $token;
+    }
 /*
     public function setToCookie($key, $value)
     {

@@ -30,7 +30,7 @@ class AmzContentController extends Controller{
         $this->checkoutHelper = $checkoutHelper;
         $this->basketService = $basketService;
         $this->customerService = $customerService;
-        $this->helper->getFromCookie();
+        $this->helper->getAccessToken();
     }
 
     public function amazonCheckoutAction(Twig $twig)
