@@ -138,9 +138,11 @@ class AmzTransactionHelper
             $transaction->amzId = $authId;
             $transaction->type = 'auth';
             $this->assignAuthorizationDetails($transaction, $details);
+	        $transaction = $this->amzTransactionRepository->saveTransaction($transaction);
             $this->doAuthorizationPaymentAction($transaction);
             $this->amzTransactionRepository->saveTransaction($transaction);
         }
+
 
         return $response;
     }
@@ -157,8 +159,10 @@ class AmzTransactionHelper
         $transaction = $transactions[0];
         $transaction->status = (string)$details["AuthorizationStatus"]["State"];
         $transaction->lastChange = (string)$details["AuthorizationStatus"]["LastUpdateTimestamp"];
-        if ($complete) {
+
+	    if ($complete) {
             $this->assignAuthorizationDetails($transaction, $details);
+		    $transaction = $this->amzTransactionRepository->updateTransaction($transaction);
             if (empty($transaction->paymentId)) {
                 $this->doAuthorizationPaymentAction($transaction, false);
             }
