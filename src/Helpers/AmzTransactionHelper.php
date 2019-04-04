@@ -304,7 +304,7 @@ class AmzTransactionHelper
 
     public function refreshCapture(AmzTransaction $transaction, $isNew = null)
     {
-        $this->helper->log(__CLASS__, __METHOD__, 'refresh capture', [$transaction]);
+        $this->helper->log(__CLASS__, __METHOD__, 'refresh capture', ['transaction'=>$transaction, 'isNew'=>$isNew]);
         $details = $this->call('getCaptureDetails', ['amazon_capture_id' => $transaction->amzId]);
         $details = $details["GetCaptureDetailsResult"]["CaptureDetails"];
         $this->helper->log(__CLASS__, __METHOD__, 'refresh capture details', [$details]);
@@ -314,6 +314,7 @@ class AmzTransactionHelper
         $this->amzTransactionRepository->updateTransaction($transaction);
         if($isNew){
             $this->doCapturePaymentAction($transaction);
+            $this->amzTransactionRepository->updateTransaction($transaction);
         }
     }
 
