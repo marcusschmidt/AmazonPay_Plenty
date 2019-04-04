@@ -205,22 +205,6 @@ class AmzTransactionHelper
         $transaction->paymentId = $plentyPayment->id;
     }
 
-    public function doCapturePaymentAction(AmzTransaction $transaction){
-        $this->helper->log(__CLASS__, __METHOD__, 'try to create capture payment', ['payment' => $transaction]);
-        $plentyPayment = null;
-        try {
-            $plentyPayment = $this->helper->createPlentyPayment($transaction->amount, 'captured', date('Y-m-d H-i-s'), 'Zahlungseinzug: ' . $transaction->amzId . "\n" . 'Betrag: ' . $transaction->amount . "\n" . 'Status: ' . $transaction->status, $transaction->amzId, 'credit', 2, $transaction->currency);
-        } catch (\Exception $e) {
-            $this->helper->log(__CLASS__, __METHOD__, 'plenty capture payment creation failed', [$e, $e->getMessage()], true);
-        }
-        $this->helper->log(__CLASS__, __METHOD__, 'capture payment created', ['payment' => $plentyPayment]);
-        $orderId = $transaction->order;
-        if ($plentyPayment instanceof Payment && !empty($orderId)) {
-            $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
-        }
-        $transaction->paymentId = $plentyPayment->id;
-    }
-
     public function refund($captureId, $amount, $creditNoteId = null)
     {
         if ($captureId) {
@@ -304,7 +288,7 @@ class AmzTransactionHelper
 
     public function refreshCapture(AmzTransaction $transaction, $isNew = null)
     {
-        $this->helper->log(__CLASS__, __METHOD__, 'refresh capture', ['transaction'=>$transaction, 'isNew'=>$isNew]);
+        $this->helper->log(__CLASS__, __METHOD__, 'refresh capture', ['transaction' => $transaction, 'isNew' => $isNew]);
         $details = $this->call('getCaptureDetails', ['amazon_capture_id' => $transaction->amzId]);
         $details = $details["GetCaptureDetailsResult"]["CaptureDetails"];
         $this->helper->log(__CLASS__, __METHOD__, 'refresh capture details', [$details]);
@@ -312,7 +296,7 @@ class AmzTransactionHelper
         $transaction  = $transactions[0];
         $this->assignCaptureDetails($transaction, $details);
         $this->amzTransactionRepository->updateTransaction($transaction);
-        if($isNew){
+        if ($isNew) {
             $this->doCapturePaymentAction($transaction);
             $this->amzTransactionRepository->updateTransaction($transaction);
         }
@@ -336,6 +320,23 @@ class AmzTransactionHelper
         if ($orderId = $this->getOrderIdFromOrderRef($transaction->orderReference)) {
             $transaction->order = $orderId;
         }
+    }
+
+    public function doCapturePaymentAction(AmzTransaction $transaction)
+    {
+        $this->helper->log(__CLASS__, __METHOD__, 'try to create capture payment', ['payment' => $transaction]);
+        $plentyPayment = null;
+        try {
+            $plentyPayment = $this->helper->createPlentyPayment($transaction->amount, 'captured', date('Y-m-d H-i-s'), 'Zahlungseinzug: ' . $transaction->amzId . "\n" . 'Betrag: ' . $transaction->amount . "\n" . 'Status: ' . $transaction->status, $transaction->amzId, 'credit', 2, $transaction->currency);
+        } catch (\Exception $e) {
+            $this->helper->log(__CLASS__, __METHOD__, 'plenty capture payment creation failed', [$e, $e->getMessage()], true);
+        }
+        $this->helper->log(__CLASS__, __METHOD__, 'capture payment created', ['payment' => $plentyPayment]);
+        $orderId = $transaction->order;
+        if ($plentyPayment instanceof Payment && !empty($orderId)) {
+            $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
+        }
+        $transaction->paymentId = $plentyPayment->id;
     }
 
     public function refreshAuthorization(AmzTransaction $transaction, $complete = false)
@@ -394,8 +395,8 @@ class AmzTransactionHelper
             $requestParameters['capture_amount']            = $amount;
             $requestParameters['currency_code']             = $this->getCurrencyFromOrderRef($orderRef);
             $requestParameters['capture_reference_id']      = 'plenty_cpt_r_' . time() . '_' . rand(10000, 99999);
-            $response = $this->call('capture', $requestParameters);
-            $orderId  = $this->getOrderIdFromOrderRef($orderRef);
+            $response                                       = $this->call('capture', $requestParameters);
+            $orderId                                        = $this->getOrderIdFromOrderRef($orderRef);
 
             if (!empty($response["Error"])) {
                 $plentyPayment = null;
@@ -409,10 +410,10 @@ class AmzTransactionHelper
                     $this->helper->assignPlentyPaymentToPlentyOrder($plentyPayment, $orderId);
                 }
             } else {
-                $details   = $response["CaptureResult"]["CaptureDetails"];
-                $captureId = $details["AmazonCaptureId"];
-                $transaction = new AmzTransaction();
-                $transaction->type = 'capture';
+                $details            = $response["CaptureResult"]["CaptureDetails"];
+                $captureId          = $details["AmazonCaptureId"];
+                $transaction        = pluginApp(AmzTransaction::class);
+                $transaction->type  = 'capture';
                 $transaction->amzId = $captureId;
                 $this->assignCaptureDetails($transaction, $details);
                 $this->helper->log(__CLASS__, __METHOD__, 'before create capture transaction', [$transaction]);
@@ -423,6 +424,7 @@ class AmzTransactionHelper
                 $this->helper->log(__CLASS__, __METHOD__, 'before doCloseOrderService', $orderRef);
                 $this->doCloseOrderService($orderRef);
             }
+
             return $response;
         } else {
             return false;
