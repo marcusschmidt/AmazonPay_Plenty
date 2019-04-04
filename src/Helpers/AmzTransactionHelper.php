@@ -187,7 +187,7 @@ class AmzTransactionHelper
         $this->helper->log(__CLASS__, __METHOD__, 'try to create payment', ['payment' => $transaction]);
         $plentyPayment = null;
         try {
-            $plentyPayment = $this->helper->createPlentyPayment(($transaction->status == 'Declined' ? 0 : $transaction->amount), ($transaction->status == 'Open' ? 'approved' : ($transaction->status == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'), 'Autorisierung: ' . $transaction->amzId . "\n" . 'Betrag: ' . $transaction->amount . "\n" . 'Status: ' . $transaction->status,
+            $plentyPayment = $this->helper->createPlentyPayment(($transaction->status == 'Declined' ? 0 : $transaction->amount), ($transaction->status == 'Open' || $transaction->status == 'Closed' ? 'approved' : ($transaction->status == 'Pending' ? 'awaiting_approval' : 'refused')), date('Y-m-d H-i-s'), 'Autorisierung: ' . $transaction->amzId . "\n" . 'Betrag: ' . $transaction->amount . "\n" . 'Status: ' . $transaction->status,
                 $transaction->amzId, 'credit', 2, $transaction->currency);
         } catch (\Exception $e) {
             $this->helper->log(__CLASS__, __METHOD__, 'plenty payment creation failed', [$e, $e->getMessage()], true);

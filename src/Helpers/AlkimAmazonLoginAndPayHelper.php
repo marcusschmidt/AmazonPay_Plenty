@@ -239,7 +239,6 @@ class AlkimAmazonLoginAndPayHelper
             $this->log(__CLASS__, __METHOD__, 'assign plenty payment to order', ['order' => $order, 'payment' => $payment]);
             if (!is_null($order) && $order instanceof Order) {
                 $paymentOrderRepo = $this->paymentOrderRelationRepository;
-
                 $return = $authHelper->processUnguarded(
                     function () use ($paymentOrderRepo, $payment, $order) {
                         return $paymentOrderRepo->createOrderRelation($payment, $order);
