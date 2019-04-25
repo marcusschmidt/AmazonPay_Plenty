@@ -435,4 +435,23 @@ class AlkimAmazonLoginAndPayHelper
             $this->log(__CLASS__, __METHOD__, 'set order id to transaction', $_transaction);
         }
     }
+
+    public function getUrlBase(){
+        /** @var WebstoreHelper $webstoreHelper */
+        $webstoreHelper = pluginApp(WebstoreHelper::class);
+        $configuration = $webstoreHelper->getCurrentWebstoreConfiguration();
+        return $configuration->domainSsl;
+    }
+
+    public function getUrlExtension(){
+        /** @var WebstoreHelper $webstoreHelper */
+        $webstoreHelper = pluginApp(WebstoreHelper::class);
+        $config = $webstoreHelper->getCurrentWebstoreConfiguration();
+        return $config->urlFileExtension;
+    }
+
+    public function getUrl($path){
+        return $this->getUrlBase() . '/'.trim($path, "/").$this->getUrlExtension();
+    }
+
 }
