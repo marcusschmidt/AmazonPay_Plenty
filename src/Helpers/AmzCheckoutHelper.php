@@ -203,6 +203,7 @@ class AmzCheckoutHelper
                                 $this->restoreBasket();
                             }
                             $this->helper->resetSession();
+                            $this->helper->setToSession('amazonCheckoutError', 'AmazonRejected');
                             $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
                             $return["redirect"] = 'basket';
 
@@ -242,6 +243,7 @@ class AmzCheckoutHelper
                     $this->cancelOrder($orderId);
                     $this->restoreBasket();
                 }
+                $this->helper->setToSession('amazonCheckoutError', 'UnknownError');
                 $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
                 $return["redirect"] = 'basket';
 
