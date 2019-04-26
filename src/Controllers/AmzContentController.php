@@ -16,15 +16,17 @@ use Plenty\Plugin\Templates\Twig;
 class AmzContentController extends Controller{
     public $configRepo;
     public $response;
+    public $request;
     public $helper;
     public $transactionHelper;
     public $checkoutHelper;
     public $basketService;
     public $customerService;
 
-    public function __construct(Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, AmzCheckoutHelper $checkoutHelper, AmzBasketService $basketService, AmzCustomerService $customerService)
+    public function __construct(Response $response, Request $request, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, AmzCheckoutHelper $checkoutHelper, AmzBasketService $basketService, AmzCustomerService $customerService)
     {
         $this->response = $response;
+        $this->request = $request;
         $this->helper = $helper;
         $this->transactionHelper = $transactionHelper;
         $this->checkoutHelper = $checkoutHelper;
@@ -43,6 +45,17 @@ class AmzContentController extends Controller{
             'currency' => $basket["currency"],
             'error' => $this->helper->getFromSession('amazonCheckoutError')
         ];
+        if($mfcError = $this->request->get('AuthenticationStatus')){
+            switch ($mfcError){
+                case 'Abandoned':
+                    $templateData['error'] = 'MfcAbandoned';
+                    break;
+                case 'Failure':
+                    $this->helper->setToSession('amazonCheckoutError', 'AmazonRejected');
+                    return $this->response->redirectTo('basket');
+                    break;
+            }
+        }
         return $twig->render('AmazonLoginAndPay::content.amazon-checkout', $templateData);
     }
 

@@ -9,7 +9,9 @@
             <div class="alert alert-danger">
                 {% if (error == 'InvalidPaymentMethod') or (error == 'TransactionTimeout') or (walletOnly == 1) %}
                     {{ trans("AmazonLoginAndPay::AmazonPay.pleaseChangePaymentMethod") }}
-                {% else %}
+                 {% elseif (error == 'MfcAbandoned') %}
+                        {{ trans("AmazonLoginAndPay::AmazonPay.mfcAbandoned") }}
+                 {% else %}
                     {{ error }}
                 {% endif %}
             </div>
