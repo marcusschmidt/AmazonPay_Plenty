@@ -352,7 +352,7 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
 
             var confirmOrderReference = function(confirmationFlow){
                 amz$.get('/amazon-pre-checkout', function (data) {
-                    if(!data.redirect) {
+                    if(typeof data === 'object' && data.redirect) {
                         confirmationFlow.error();
                         location.href = data.redirect;
                     }else{
