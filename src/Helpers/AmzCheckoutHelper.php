@@ -184,6 +184,10 @@ class AmzCheckoutHelper
         $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
 
         if ($this->helper->getFromConfig('authorizationMode') != 'manually') {
+            if(empty($amount)){
+                $basket   = $this->getBasketData();
+                $amount   = $basket["basketAmount"];
+            }
             $response = $this->transactionHelper->authorize($orderReferenceId, $amount, 0);
             $this->helper->log(__CLASS__, __METHOD__, 'amazonCheckoutAuthorizeResult', $response);
             if (is_array($response) && !empty($response["AuthorizeResult"])) {
