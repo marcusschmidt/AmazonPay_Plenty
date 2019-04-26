@@ -17,6 +17,7 @@ use Plenty\Modules\Payment\Models\PaymentProperty;
 use Plenty\Plugin\ConfigRepository;
 use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Log\Loggable;
+use Plenty\Plugin\Translation\Translator;
 
 class AlkimAmazonLoginAndPayHelper
 {
@@ -29,9 +30,10 @@ class AlkimAmazonLoginAndPayHelper
     public $paymentOrderRelationRepository;
     public $statusMap;
     public $webstoreHelper;
+    public $translator;
     use Loggable;
 
-    public function __construct(WebstoreHelper $webstoreHelper, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentMethodRepositoryContract $paymentMethodRepository, FrontendSessionStorageFactoryContract $session, ConfigRepository $configRepository)
+    public function __construct(Translator $translator, WebstoreHelper $webstoreHelper, PaymentOrderRelationRepositoryContract $paymentOrderRelationRepository, OrderRepositoryContract $orderRepository, PaymentRepositoryContract $paymentRepository, PaymentMethodRepositoryContract $paymentMethodRepository, FrontendSessionStorageFactoryContract $session, ConfigRepository $configRepository)
     {
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->paymentRepository = $paymentRepository;
@@ -40,6 +42,7 @@ class AlkimAmazonLoginAndPayHelper
         $this->session = $session;
         $this->configRepo = $configRepository;
         $this->webstoreHelper = $webstoreHelper;
+        $this->translator = $translator;
     }
 
     public function getWebstoreName()
@@ -452,6 +455,20 @@ class AlkimAmazonLoginAndPayHelper
 
     public function getUrl($path){
         return $this->getUrlBase() . '/'.trim($path, "/").$this->getUrlExtension();
+    }
+
+    public function scheduleNotification($message, $type = 'error'){
+        $notification = [
+            'message'       => $message,
+            'code'          => 0,
+            'stackTrace'    => []
+        ];
+        $notifications[$type] = $notification;
+        $this->setToSession('notifications', json_encode($notifications));
+    }
+
+    public function translate($textId){
+        return $this->translator->trans($textId);
     }
 
 }

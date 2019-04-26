@@ -51,7 +51,7 @@ class AmzContentController extends Controller{
                     $templateData['error'] = 'MfcAbandoned';
                     break;
                 case 'Failure':
-                    $this->helper->setToSession('amazonCheckoutError', 'AmazonRejected');
+                    $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
                     return $this->response->redirectTo('basket');
                     break;
             }
