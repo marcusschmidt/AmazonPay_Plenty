@@ -189,10 +189,8 @@ var PlentyMarketsAmazonPay = {
                             });
                         }
                     },
-                    onAddressSelect: function (orderReference) {
-                        orderReference = orderReference.getAmazonOrderReferenceId();
-                        PlentyMarketsAmazonPay.orderReference = orderReference;
-                        PlentyMarketsAmazonPay.isAddressInitialized = true;
+                    onAddressSelect: function () {
+                       PlentyMarketsAmazonPay.isAddressInitialized = true;
                         if (PlentyMarketsAmazonPay.isInitialized) {
                             PlentyMarketsAmazonPay.getShippingList();
                             PlentyMarketsAmazonPay.getOrderDetails();
