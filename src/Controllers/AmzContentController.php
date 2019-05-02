@@ -48,10 +48,10 @@ class AmzContentController extends Controller{
         if($mfcError = $this->request->get('AuthenticationStatus')){
             switch ($mfcError){
                 case 'Abandoned':
-                    $templateData['error'] = 'MfcAbandoned';
+                    $templateData['error'] = 'MfaAbandoned';
                     break;
                 case 'Failure':
-                    $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.paymentDeclinedInfo'));
+                    $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.errorMfaFailed'));
                     return $this->response->redirectTo('basket');
                     break;
             }
