@@ -336,17 +336,16 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
 
     amz$(function () {
         PlentyMarketsAmazonPay.isDocumentReady = true;
-        amz$('.amz-checkout-order-button-wr a').bind('click', function (e) {
+        amz$('.amz-checkout-order-button-wr:not(.wallet-only) a').bind('click', function (e) {
             e.preventDefault();
             if (amz$('#gtc-accept').length && !amz$('#gtc-accept').is(':checked')) {
                 e.preventDefault();
                 alert(amz$('#gtc-accept').data('error'));
                 return;
             }
-
             var $link = amz$(this);
             $link.css({opacity: 0.5, cursor: 'default'});
-            $link.bind('click', function (e) {
+            $link.unbind('click').bind('click', function (e) {
                 e.preventDefault();
             });
 
@@ -367,7 +366,6 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
                 });
             };
 
-
             var $commentInput = amz$('.amz-comment-textarea');
             if ($commentInput.length) {
                 amz$.get('/amazon-ajax-handle', {action: 'setComment', comment: $commentInput.val()}, function (data) {
@@ -376,8 +374,22 @@ if (typeof(amz$) !== 'undefined' && amz$.fn.on) {
             }else{
                 startCheckout();
             }
+        });
 
-
+        amz$('.amz-checkout-order-button-wr.wallet-only a').bind('click', function (e) {
+            e.preventDefault();
+            var $link = amz$(this);
+            $link.css({opacity: 0.5, cursor: 'default'});
+            $link.unbind('click').bind('click', function (e) {
+                e.preventDefault();
+            });
+            amz$.get('/amazon-pre-checkout', function (data) {
+                if (typeof data === 'object' && data.redirect) {
+                    location.href = data.redirect;
+                } else {
+                    location.href = $link.attr('href');
+                }
+            });
         });
     });
 }
