@@ -64,6 +64,8 @@ class AmzTransactionHelper
     {
         $requestParameters                              = [];
         $requestParameters['amazon_order_reference_id'] = $orderRef;
+        $requestParameters['success_url'] = $this->helper->getUrl('amazon-checkout-proceed');
+        $requestParameters['failure_url'] =$this->helper->getUrl('amazon-checkout');
         $response                                       = $this->call('confirmOrderReference', $requestParameters);
         if ($saveTransaction) {
             $details                     = $this->getOrderReferenceDetails($orderRef);

@@ -67,7 +67,7 @@
     "IO"
   ],
   "dependencies": {
-    "amzn/amazon-pay-sdk-php": "3.1.0"
+    "amzn/amazon-pay-sdk-php": "3.4.1"
   },
   "runOnBuild": [
     "AmazonLoginAndPay\\Migrations\\CreateAmzTransactionTable",

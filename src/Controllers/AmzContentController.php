@@ -16,15 +16,17 @@ use Plenty\Plugin\Templates\Twig;
 class AmzContentController extends Controller{
     public $configRepo;
     public $response;
+    public $request;
     public $helper;
     public $transactionHelper;
     public $checkoutHelper;
     public $basketService;
     public $customerService;
 
-    public function __construct(Response $response, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, AmzCheckoutHelper $checkoutHelper, AmzBasketService $basketService, AmzCustomerService $customerService)
+    public function __construct(Response $response, Request $request, AlkimAmazonLoginAndPayHelper $helper, AmzTransactionHelper $transactionHelper, AmzCheckoutHelper $checkoutHelper, AmzBasketService $basketService, AmzCustomerService $customerService)
     {
         $this->response = $response;
+        $this->request = $request;
         $this->helper = $helper;
         $this->transactionHelper = $transactionHelper;
         $this->checkoutHelper = $checkoutHelper;
@@ -43,6 +45,17 @@ class AmzContentController extends Controller{
             'currency' => $basket["currency"],
             'error' => $this->helper->getFromSession('amazonCheckoutError')
         ];
+        if($mfcError = $this->request->get('AuthenticationStatus')){
+            switch ($mfcError){
+                case 'Abandoned':
+                    $templateData['error'] = 'MfaAbandoned';
+                    break;
+                case 'Failure':
+                    $this->helper->scheduleNotification($this->helper->translate('AmazonLoginAndPay::AmazonPay.errorMfaFailed'));
+                    return $this->response->redirectTo('basket');
+                    break;
+            }
+        }
         return $twig->render('AmazonLoginAndPay::content.amazon-checkout', $templateData);
     }
 
@@ -91,6 +104,8 @@ class AmzContentController extends Controller{
         return $twig->render('AmazonLoginAndPay::content.amazon-connect-accounts', $templateData);
     }
 
+
+
     public function amazonCheckoutProceedAction()
     {
         $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
@@ -103,22 +118,22 @@ class AmzContentController extends Controller{
                 $amount = $this->transactionHelper->getAmountFromOrderRef($orderReferenceId);
                 $currency = $this->transactionHelper->getCurrencyFromOrderRef($orderReferenceId);
             }
-            $return = $this->checkoutHelper->doCheckoutActions($amount, 0, $walletOnly, $currency);
+            $return = $this->checkoutHelper->doCheckoutActions($amount, 0, $walletOnly);
             $this->helper->log(__CLASS__, __METHOD__, 'checkout actions response', $return);
             if (!empty($return["redirect"])) {
                 return $this->response->redirectTo($return["redirect"]);
             }
         } else {
-            $basket = $this->checkoutHelper->getBasketData();
-            $amount = $basket["basketAmount"];
-            $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
-            $setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, null, $basket["currency"]);
+            //$basket = $this->checkoutHelper->getBasketData();
+            //$amount = $basket["basketAmount"];
+            //$orderReferenceId = $this->helper->getFromSession('amzOrderReference');
+            /*$setOrderReferenceDetailsResponse = $this->transactionHelper->setOrderReferenceDetails($orderReferenceId, $amount, null, $basket["currency"]);
             $constraints = $setOrderReferenceDetailsResponse["SetOrderReferenceDetailsResult"]["OrderReferenceDetails"]["Constraints"];
             $constraint = $constraints["Constraint"]["ConstraintID"];
             if (!empty($constraint)) {
                 $this->helper->setToSession('amazonCheckoutError', 'InvalidPaymentMethod');
                 return $this->response->redirectTo('amazon-checkout');
-            }
+            }*/
 
             $basketItems = $this->basketService->getBasketItems();
             $this->helper->log(__CLASS__, __METHOD__, 'set basket items to session', $basketItems);
