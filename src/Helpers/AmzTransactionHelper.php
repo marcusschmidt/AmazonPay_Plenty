@@ -38,7 +38,14 @@ class AmzTransactionHelper
         }
         $requestParameters['seller_note'] = '';
         $response                         = $this->call('SetOrderReferenceDetails', $requestParameters);
+        return $response;
+    }
 
+    public function setOrderId($orderRef, $orderId){
+        $requestParameters = [];
+        $requestParameters['amazon_order_reference_id'] = $orderRef;
+        $requestParameters['seller_order_id'] = $orderId;
+        $response                         = $this->call('SetOrderAttributes', $requestParameters);
         return $response;
     }
 

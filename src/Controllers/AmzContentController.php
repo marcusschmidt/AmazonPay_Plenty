@@ -111,7 +111,7 @@ class AmzContentController extends Controller{
         $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
         $walletOnly = $this->helper->getFromSession('amzInvalidPaymentOrderReference') == $orderReferenceId;
         $this->helper->log(__CLASS__, __METHOD__, 'is wallet only?', $walletOnly);
-        if ($this->helper->getFromConfig('submitOrderIds') != 'true' || $walletOnly) {
+        if ($walletOnly) {
             $amount = null;
             $currency = 'EUR';
             if ($walletOnly) {

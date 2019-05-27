@@ -176,10 +176,9 @@ class AmzCheckoutHelper
 
     public function doCheckoutActions($amount = null, $orderId = 0, $walletOnly = false)
     {
-        $successTarget = ($this->helper->getFromConfig('submitOrderIds') == 'true' ? 'confirmation' : 'place-order');
+        $successTarget = 'place-order';
         if (!$walletOnly) {
             $this->setPaymentMethod();
-            $successTarget = 'place-order';
         }
         $orderReferenceId = $this->helper->getFromSession('amzOrderReference');
 
