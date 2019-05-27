@@ -46,6 +46,7 @@ class AmzTransactionHelper
         $requestParameters['amazon_order_reference_id'] = $orderRef;
         $requestParameters['seller_order_id'] = $orderId;
         $response                         = $this->call('SetOrderAttributes', $requestParameters);
+        $this->helper->log(__CLASS__, __METHOD__, 'set order id result', $requestParameters, $response);
         return $response;
     }
 

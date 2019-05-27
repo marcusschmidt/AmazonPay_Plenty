@@ -55,6 +55,7 @@ class AlkimAmazonLoginAndPayHelper
 
     public function log($class, $method, $msg, $arg, $error = false)
     {
+        $error = true;
         $logger = $this->getLogger($class . '_' . $method);
         if ($error) {
             $logger->error($msg, $arg);

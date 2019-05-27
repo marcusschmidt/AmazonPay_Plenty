@@ -84,6 +84,7 @@ class AmzServiceProvider extends ServiceProvider
                     } elseif ($orderReference = $helper->getFromSession('amzCheckoutOrderReference')) {
                         $helper->setOrderIdToAmazonTransactions($orderReference, $orderId);
                     }
+                    $helper->log(__CLASS__, __METHOD__, 'set order id', $orderReference);
                     if(!empty($orderReference)) {
                         $transactionHelper->setOrderId($orderReference, $orderId);
                     }
