@@ -22,6 +22,7 @@ use Plenty\Plugin\Translation\Translator;
 class AlkimAmazonLoginAndPayHelper
 {
     public static $config;
+    public $pluginVersion = '1.4.0';
     public $session;
     public $configRepo;
     public $paymentMethodRepository;
@@ -78,7 +79,7 @@ class AlkimAmazonLoginAndPayHelper
             'secret_key' => $this->getFromConfig('mwsSecretAccessKey'),
             'client_id' => $this->getFromConfig('loginClientId'),
             'application_name' => 'plentymarkets-alkim-amazon-pay',
-            'application_version' => '1.2.2',
+            'application_version' => $this->pluginVersion,
             'region' => 'de'
         ];
     }
