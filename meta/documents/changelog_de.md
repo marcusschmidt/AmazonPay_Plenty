@@ -7,6 +7,7 @@
 
 - Kaufabbruch wegen fehlender Rechnungsadresse
 - sich überlagernde Ajax-Calls
+- Abhängigkeiten aktualisiert
 
 ## 1.4.0
 

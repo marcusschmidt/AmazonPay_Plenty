@@ -6,6 +6,7 @@
 
 - fatal error because of missing invoice address
 - messy AJAX call stack
+- updated dependencies
 
 ## 1.4.0
 
