@@ -454,7 +454,7 @@ class AlkimAmazonLoginAndPayHelper
 
     public function getUrl($path)
     {
-        return $this->getUrlBase() . '/' . trim($path, "/") . $this->getUrlExtension();
+        return $this->getUrlBase() . '/' . trim($path, "/");
     }
 
     public function getUrlBase()
@@ -465,16 +465,16 @@ class AlkimAmazonLoginAndPayHelper
 
         return $configuration->domainSsl;
     }
-
+    /*
     public function getUrlExtension()
     {
-        /** @var WebstoreHelper $webstoreHelper */
+        //@var WebstoreHelper $webstoreHelper
         $webstoreHelper = pluginApp(WebstoreHelper::class);
         $config         = $webstoreHelper->getCurrentWebstoreConfiguration();
 
         return $config->urlFileExtension;
     }
-
+    */
     public function scheduleNotification($message, $type = 'error')
     {
         $notification         = [
