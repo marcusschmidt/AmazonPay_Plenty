@@ -8,6 +8,8 @@ use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFact
 use Plenty\Modules\Helper\Services\WebstoreHelper;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Plenty\Modules\Order\Models\Order;
+use Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract;
+use Plenty\Modules\Order\Property\Models\OrderPropertyType;
 use Plenty\Modules\Order\Shipping\Countries\Contracts\CountryRepositoryContract;
 use Plenty\Modules\Payment\Contracts\PaymentOrderRelationRepositoryContract;
 use Plenty\Modules\Payment\Contracts\PaymentRepositoryContract;
@@ -263,6 +265,34 @@ class AlkimAmazonLoginAndPayHelper
         }
 
         return true;
+    }
+
+    public function setOrderExternalId($orderId, $externalId){
+        /** @var AuthHelper $authHelper */
+        $authHelper = pluginApp(AuthHelper::class);
+
+        /** @var \Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract $orderPropertyRepository */
+        $orderPropertyRepository = pluginApp(OrderPropertyRepositoryContract::class);
+        $helper = $this;
+       $authHelper->processUnguarded(
+            function () use ($orderPropertyRepository, $orderId, $externalId, $helper) {
+
+                /** @var \Plenty\Modules\Order\Property\Models\OrderProperty $existing */
+                $existing = $orderPropertyRepository->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
+                $helper->log(__CLASS__, __METHOD__, 'existing external order id', [$existing], true);
+                if ($existing && $existing->value) {
+                    return;
+                }
+
+                $orderProperty = $orderPropertyRepository->create([
+                    'orderId' => $orderId,
+                    'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
+                    'value'   => $externalId
+                ]);
+
+                $helper->log(__CLASS__, __METHOD__, 'existing external order id 2', [$orderProperty], true);
+
+            });
     }
 
     public function getOrderTotalAndCurrency(int $orderId)

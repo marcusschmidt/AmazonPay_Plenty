@@ -1,4 +1,3 @@
-//v2018-08-22_15:05
 if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
     var amz$ = $;
 }

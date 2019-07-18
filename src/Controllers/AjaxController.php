@@ -296,7 +296,7 @@ class AjaxController extends Controller
 
     public function getTable(Twig $twig, AmzTransactionRepositoryContract $repository)
     {
-        $transactions = $repository->getTransactions([]);
+        $transactions = $repository->getTransactions([['time', '>', date('Y-m-d', time()-86400*60)]]);
         $html         = '<table>';
         foreach ($transactions as $transaction) {
             $html .= '<tr>';
