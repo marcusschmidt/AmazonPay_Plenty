@@ -298,7 +298,7 @@ class AlkimAmazonLoginAndPayHelper
 
                     $helper->log(__CLASS__, __METHOD__, 'existing external order id 2', [$orderProperty], true);
                 }catch(\Exception $e){
-                    $helper->log(__CLASS__, __METHOD__, 'setOrderExternalId error', [$e], true);
+                    $helper->log(__CLASS__, __METHOD__, 'setOrderExternalId error', [$e->getCode(), $e->getMessage(), $e->getLine()], true);
                 }
 
             });
