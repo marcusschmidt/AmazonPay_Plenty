@@ -276,21 +276,30 @@ class AlkimAmazonLoginAndPayHelper
         $helper = $this;
        $authHelper->processUnguarded(
             function () use ($orderPropertyRepository, $orderId, $externalId, $helper) {
+                try {
+                    /** @var \Plenty\Modules\Order\Property\Models\OrderProperty $existing */
+                    $existing = $orderPropertyRepository->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id', [$orderId, $externalId, $existing, gettype($existing)], true);
+                    if ($existing && $existing->value) {
+                        $helper->log(__CLASS__, __METHOD__, 'existing external order id return', [], true);
+                        return;
+                    }
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id data', [
+                        'orderId' => $orderId,
+                        'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
+                        'value'   => $externalId
+                    ], true);
 
-                /** @var \Plenty\Modules\Order\Property\Models\OrderProperty $existing */
-                $existing = $orderPropertyRepository->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
-                $helper->log(__CLASS__, __METHOD__, 'existing external order id', [$existing], true);
-                if ($existing && $existing->value) {
-                    return;
+                    $orderProperty = $orderPropertyRepository->create([
+                        'orderId' => $orderId,
+                        'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
+                        'value'   => $externalId
+                    ]);
+
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id 2', [$orderProperty], true);
+                }catch(\Exception $e){
+                    $helper->log(__CLASS__, __METHOD__, 'setOrderExternalId error', [$e], true);
                 }
-
-                $orderProperty = $orderPropertyRepository->create([
-                    'orderId' => $orderId,
-                    'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
-                    'value'   => $externalId
-                ]);
-
-                $helper->log(__CLASS__, __METHOD__, 'existing external order id 2', [$orderProperty], true);
 
             });
     }
