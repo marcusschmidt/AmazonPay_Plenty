@@ -267,50 +267,33 @@ class AlkimAmazonLoginAndPayHelper
         return true;
     }
 
-    public function setOrderExternalId($orderId, $externalId){
+    public function setOrderExternalId($orderId, $externalId)
+    {
         /** @var AuthHelper $authHelper */
         $authHelper = pluginApp(AuthHelper::class);
 
         /** @var \Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract $orderPropertyRepository */
         $orderPropertyRepository = pluginApp(OrderPropertyRepositoryContract::class);
-        $helper = $this;
-       $authHelper->processUnguarded(
+        $helper                  = $this;
+        $authHelper->processUnguarded(
             function () use ($orderPropertyRepository, $orderId, $externalId, $helper) {
                 try {
                     /** @var \Plenty\Modules\Order\Property\Models\OrderProperty $existing */
                     $existing = $orderPropertyRepository->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
-                    $helper->log(__CLASS__, __METHOD__, 'existing external order id', [$orderId, $externalId, $existing, $existing->toArray(), is_array($existing), is_object($existing)], true);
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id check', [$orderId, $externalId, $existing->toArray()], true);
                     $existingArray = $existing->toArray();
                     if ($existing && !empty($existingArray)) {
-                        $helper->log(__CLASS__, __METHOD__, 'existing external order id return', [], true);
+                        $helper->log(__CLASS__, __METHOD__, 'existing external order id return', [$existingArray]);
+
                         return;
                     }
-                    $helper->log(__CLASS__, __METHOD__, 'existing external order id dataz', [
-                        'orderId' => $orderId
-                    ], true);
-
-                    $helper->log(__CLASS__, __METHOD__, 'existing external order id dataz1', [
-                        'typeId' => OrderPropertyType::EXTERNAL_ORDER_ID
-                    ], true);
-
-                    $helper->log(__CLASS__, __METHOD__, 'existing external order id datafgh', [
-                        'value'   => $externalId
-                    ], true);
-
-                    $helper->log(__CLASS__, __METHOD__, 'existing external order id data', [
-                        'orderId' => $orderId,
-                        'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
-                        'value'   => $externalId
-                    ], true);
-
                     $orderProperty = $orderPropertyRepository->create([
                         'orderId' => $orderId,
                         'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
                         'value'   => $externalId
                     ]);
-
-                    $helper->log(__CLASS__, __METHOD__, 'existing external order id 2', [$orderProperty], true);
-                }catch(\Exception $e){
+                    $helper->log(__CLASS__, __METHOD__, 'external order id set', [$orderProperty]);
+                } catch (\Exception $e) {
                     $helper->log(__CLASS__, __METHOD__, 'setOrderExternalId error', [$e->getCode(), $e->getMessage(), $e->getLine()], true);
                 }
 
@@ -517,6 +500,7 @@ class AlkimAmazonLoginAndPayHelper
 
         return $configuration->domainSsl;
     }
+
     /*
     public function getUrlExtension()
     {
