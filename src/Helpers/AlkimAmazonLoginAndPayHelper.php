@@ -285,6 +285,18 @@ class AlkimAmazonLoginAndPayHelper
                         $helper->log(__CLASS__, __METHOD__, 'existing external order id return', [], true);
                         return;
                     }
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id dataz', [
+                        'orderId' => $orderId
+                    ], true);
+
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id dataz1', [
+                        'typeId' => OrderPropertyType::EXTERNAL_ORDER_ID
+                    ], true);
+
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id datafgh', [
+                        'value'   => $externalId
+                    ], true);
+
                     $helper->log(__CLASS__, __METHOD__, 'existing external order id data', [
                         'orderId' => $orderId,
                         'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
