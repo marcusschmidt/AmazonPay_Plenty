@@ -485,6 +485,7 @@ class AlkimAmazonLoginAndPayHelper
             $amzTransactionRepository->updateTransaction($_transaction);
             $this->log(__CLASS__, __METHOD__, 'set order id to transaction', $_transaction);
         }
+        $this->setOrderExternalId($orderId, $orderReference);
     }
 
     public function getUrl($path)
