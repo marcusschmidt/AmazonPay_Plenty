@@ -280,7 +280,7 @@ class AlkimAmazonLoginAndPayHelper
                 try {
                     /** @var \Plenty\Modules\Order\Property\Models\OrderProperty $existing */
                     $existing = $orderPropertyRepository->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
-                    $helper->log(__CLASS__, __METHOD__, 'existing external order id check', [$orderId, $externalId, $existing->toArray()], true);
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id check', [$orderId, $externalId, $existing->toArray()]);
                     $existingArray = $existing->toArray();
                     if ($existing && !empty($existingArray)) {
                         $helper->log(__CLASS__, __METHOD__, 'existing external order id return', [$existingArray]);
