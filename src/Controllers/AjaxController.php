@@ -47,7 +47,7 @@ class AjaxController extends Controller
         switch ($action) {
             case 'setAccessToken':
                 $this->helper->setToSession('amzUserToken', $this->request->get('access_token'));
-                $redirect  = '/amazon-checkout';
+                $redirect  = $this->helper->getUrl('/amazon-checkout');
                 $cookieStr = '';
                 $header    = $this->request->header();
                 if (isset($header['cookie']) && is_array($header['cookie'])) {

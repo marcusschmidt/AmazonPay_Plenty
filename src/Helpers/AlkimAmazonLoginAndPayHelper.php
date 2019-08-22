@@ -3,6 +3,9 @@
 namespace AmazonLoginAndPay\Helpers;
 
 use AmazonLoginAndPay\Contracts\AmzTransactionRepositoryContract;
+use IO\Services\SessionStorageService;
+use IO\Services\UrlBuilder\UrlQuery;
+use IO\Services\WebstoreConfigurationService;
 use Plenty\Modules\Authorization\Services\AuthHelper;
 use Plenty\Modules\Frontend\Session\Storage\Contracts\FrontendSessionStorageFactoryContract;
 use Plenty\Modules\Helper\Services\WebstoreHelper;
@@ -267,39 +270,6 @@ class AlkimAmazonLoginAndPayHelper
         return true;
     }
 
-    public function setOrderExternalId($orderId, $externalId)
-    {
-        /** @var AuthHelper $authHelper */
-        $authHelper = pluginApp(AuthHelper::class);
-
-        /** @var \Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract $orderPropertyRepository */
-        $orderPropertyRepository = pluginApp(OrderPropertyRepositoryContract::class);
-        $helper                  = $this;
-        $authHelper->processUnguarded(
-            function () use ($orderPropertyRepository, $orderId, $externalId, $helper) {
-                try {
-                    /** @var \Plenty\Modules\Order\Property\Models\OrderProperty $existing */
-                    $existing = $orderPropertyRepository->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
-                    $helper->log(__CLASS__, __METHOD__, 'existing external order id check', [$orderId, $externalId, $existing->toArray()]);
-                    $existingArray = $existing->toArray();
-                    if ($existing && !empty($existingArray)) {
-                        $helper->log(__CLASS__, __METHOD__, 'existing external order id return', [$existingArray]);
-
-                        return;
-                    }
-                    $orderProperty = $orderPropertyRepository->create([
-                        'orderId' => $orderId,
-                        'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
-                        'value'   => $externalId
-                    ]);
-                    $helper->log(__CLASS__, __METHOD__, 'external order id set', [$orderProperty]);
-                } catch (\Exception $e) {
-                    $helper->log(__CLASS__, __METHOD__, 'setOrderExternalId error', [$e->getCode(), $e->getMessage(), $e->getLine()], true);
-                }
-
-            });
-    }
-
     public function getOrderTotalAndCurrency(int $orderId)
     {
         $order = $this->orderRepository->findOrderById($orderId);
@@ -488,18 +458,66 @@ class AlkimAmazonLoginAndPayHelper
         $this->setOrderExternalId($orderId, $orderReference);
     }
 
-    public function getUrl($path)
+    public function setOrderExternalId($orderId, $externalId)
     {
-        return $this->getUrlBase() . '/' . trim($path, "/");
+        /** @var AuthHelper $authHelper */
+        $authHelper = pluginApp(AuthHelper::class);
+
+        /** @var \Plenty\Modules\Order\Property\Contracts\OrderPropertyRepositoryContract $orderPropertyRepository */
+        $orderPropertyRepository = pluginApp(OrderPropertyRepositoryContract::class);
+        $helper                  = $this;
+        $authHelper->processUnguarded(
+            function () use ($orderPropertyRepository, $orderId, $externalId, $helper) {
+                try {
+                    /** @var \Plenty\Modules\Order\Property\Models\OrderProperty $existing */
+                    $existing = $orderPropertyRepository->findByOrderId($orderId, OrderPropertyType::EXTERNAL_ORDER_ID);
+                    $helper->log(__CLASS__, __METHOD__, 'existing external order id check', [$orderId, $externalId, $existing->toArray()]);
+                    $existingArray = $existing->toArray();
+                    if ($existing && !empty($existingArray)) {
+                        $helper->log(__CLASS__, __METHOD__, 'existing external order id return', [$existingArray]);
+
+                        return;
+                    }
+                    $orderProperty = $orderPropertyRepository->create([
+                        'orderId' => $orderId,
+                        'typeId'  => OrderPropertyType::EXTERNAL_ORDER_ID,
+                        'value'   => $externalId
+                    ]);
+                    $helper->log(__CLASS__, __METHOD__, 'external order id set', [$orderProperty]);
+                } catch (\Exception $e) {
+                    $helper->log(__CLASS__, __METHOD__, 'setOrderExternalId error', [$e->getCode(), $e->getMessage(), $e->getLine()], true);
+                }
+
+            });
     }
 
-    public function getUrlBase()
+    public function getUrl($path)
     {
-        /** @var WebstoreHelper $webstoreHelper */
-        $webstoreHelper = pluginApp(WebstoreHelper::class);
-        $configuration  = $webstoreHelper->getCurrentWebstoreConfiguration();
+        return $this->getAbsoluteUrl($path);
+        //return $this->getUrlBase() . '/' . trim($path, "/");
+    }
 
-        return $configuration->domainSsl;
+    //public function getUrlBase()
+    //{
+    //    /** @var WebstoreHelper $webstoreHelper */
+    //    $webstoreHelper = pluginApp(WebstoreHelper::class);
+    //    $configuration  = $webstoreHelper->getCurrentWebstoreConfiguration();
+    //    return $configuration->domainSsl;
+    //}
+
+    public function getAbsoluteUrl($path)
+    {
+        /** @var WebstoreConfigurationService $webstoreConfigurationService */
+        $webstoreConfigurationService = pluginApp(WebstoreConfigurationService::class);
+        /** @var SessionStorageService $sessionStorage */
+        $sessionStorage  = pluginApp(SessionStorageService::class);
+        $defaultLanguage = $webstoreConfigurationService->getDefaultLanguage();
+        $lang            = $sessionStorage->getLang();
+
+        $includeLanguage = $lang !== null && $lang !== $defaultLanguage;
+        /** @var UrlQuery $urlQuery */
+        $urlQuery = pluginApp(UrlQuery::class, ['path' => $path, 'lang' => $lang]);
+        return $urlQuery->toAbsoluteUrl($includeLanguage);
     }
 
     /*
@@ -512,6 +530,7 @@ class AlkimAmazonLoginAndPayHelper
         return $config->urlFileExtension;
     }
     */
+
     public function scheduleNotification($message, $type = 'error')
     {
         $notification         = [
