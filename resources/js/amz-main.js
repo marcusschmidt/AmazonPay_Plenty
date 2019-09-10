@@ -36,7 +36,7 @@ var PlentyMarketsAmazonPay = {
         return language;
     },
     getShippingList: function (callback) {
-        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'getShippingList'}, function (data) {
+        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'getShippingList', orderReference: String(PlentyMarketsAmazonPay.orderReference)}, function (data) {
             if (data.indexOf('alert-warning') !== -1) {
                 amz$('.amz-checkout-order-button-wr').hide();
             } else {
@@ -49,7 +49,7 @@ var PlentyMarketsAmazonPay = {
         });
     },
     getOrderDetails: function () {
-        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'getOrderDetails'}, function (data) {
+        amz$.get(amazonLoginAndPay.urls.amazonAjaxHandle, {action: 'getOrderDetails', orderReference: String(PlentyMarketsAmazonPay.orderReference)}, function (data) {
             amz$('#orderDetailsWr').html(data);
         });
     },

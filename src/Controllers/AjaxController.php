@@ -44,6 +44,9 @@ class AjaxController extends Controller
     {
         $action = $this->request->get('action');
         $this->helper->log(__CLASS__, __METHOD__, 'ajax handle action', ['action' => $action, 'orderReference' => $this->helper->getFromSession('amzOrderReference')]);
+        if($orderReference = (string)$this->request->get('orderReference')){
+            $this->helper->setToSession('amzOrderReference', $orderReference);
+        }
         switch ($action) {
             case 'setAccessToken':
                 $this->helper->setToSession('amzUserToken', $this->request->get('access_token'));
@@ -254,7 +257,11 @@ class AjaxController extends Controller
                                     $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - detected payment', [$transaction->paymentId, $orderId]);
                                     if ($payment = $this->helper->paymentRepository->getPaymentById($transaction->paymentId)) {
                                         $this->helper->log(__CLASS__, __METHOD__, 'shopware connector - assign payment', [$payment, $orderId]);
-                                        if (!$this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId)) {
+                                        if ($this->helper->assignPlentyPaymentToPlentyOrder($payment, $orderId)) {
+                                            if ($transaction->status === 'Open' && $this->helper->getFromConfig('authorizedStatus')) {
+                                                $this->helper->setOrderStatus($orderId, $this->helper->getFromConfig('authorizedStatus'));
+                                            }
+                                        }else{
                                             $this->transactionHelper->doAuthorizationPaymentAction($transaction);
                                         }
                                     }
