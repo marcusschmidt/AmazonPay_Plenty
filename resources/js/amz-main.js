@@ -5,6 +5,7 @@ if (typeof $ !== 'undefined' && typeof amz$ === 'undefined') {
 
 var PlentyMarketsAmazonPay = {
     isFirstAddressCall: true,
+    amazonButtonCounter: 0,
     isInitialized: false,
     isInitStarted: false,
     isAddressInitialized: false,
@@ -86,15 +87,14 @@ var PlentyMarketsAmazonPay = {
         if (typeof amz$ !== 'undefined' && PlentyMarketsAmazonPay.isInitStarted === false && PlentyMarketsAmazonPay.isDocumentReady) {
             PlentyMarketsAmazonPay.isInitStarted = true;
             var authRequest;
-            var amzI = 0;
+
             var $payButton = amz$('.amzPayButton');
             if ($payButton.length) {
                 $payButton.each(function () {
                     var $button = amz$(this);
                     if ($button.find('img').length === 0 || !$button.attr('id')) {
                         var isArticleCheckout = $button.hasClass('articleCheckout');
-                        var id = 'amzPayButton_' + amzI;
-                        amzI++;
+                        var id = 'amzPayButton_' + PlentyMarketsAmazonPay.amazonButtonCounter++;
                         $button.attr('id', id);
                         OffAmazonPayments.Button(id, amazonLoginAndPay.config.merchantId, {
                             type: 'PwA',
